@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <chrono>
 #include <algorithm>
 
 using namespace std;
@@ -292,6 +293,122 @@ vector<int> union_values(const Tree &tree1, const Tree &tree2)
     return temp.get_values();
 }
 
+double test_fill(int size)
+{
+    double total_time = 0;
+    for (int i = 0; i < 100; ++i)
+    {
+        Tree tree;
+        auto start = chrono::high_resolution_clock::now();
+        int inserted = 0;
+        while (inserted < size)
+        {
+            if (tree.insert(lcg()))
+            {
+                inserted++;
+            }
+        }
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double, micro> time = end - start;
+        total_time += time.count();
+    }
+    return total_time / 100;
+}
+
+double test_find(int size)
+{
+    Tree tree;
+    int inserted = 0;
+    while (inserted < size)
+    {
+        if (tree.insert(lcg()))
+            inserted++;
+    }
+    auto start = chrono::high_resolution_clock::now();
+    for (int i = 0; i < 1000; ++i)
+    {
+        tree.contains(lcg());
+    }
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double, micro> time = end - start;
+    return time.count() / 1000;
+}
+
+double test_insert_delete(int size)
+{
+    Tree tree;
+    int inserted = 0;
+    while (inserted < size)
+    {
+        if (tree.insert(lcg()))
+            inserted++;
+    }
+    auto start = chrono::high_resolution_clock::now();
+    for (int i = 0; i < 1000; ++i)
+    {
+        tree.insert(lcg());
+        tree.erase(lcg());
+    }
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double, micro> time = end - start;
+    return time.count() / 1000;
+}
+
+double test_fill_vec(int size)
+{
+    double total_time = 0;
+    for (int i = 0; i < 100; ++i)
+    {
+        vector<int> vec;
+        auto start = chrono::high_resolution_clock::now();
+        int inserted = 0;
+        while (inserted < size)
+        {
+            vec.push_back(lcg());
+            inserted++;
+        }
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double, micro> time = end - start;
+        total_time += time.count();
+    }
+    return total_time / 100;
+}
+
+double test_find_vec(int size)
+{
+    vector<int> vec;
+    for (int i = 0; i < size; ++i)
+    {
+        vec.push_back(lcg());
+    }
+    auto start = chrono::high_resolution_clock::now();
+    for (int i = 0; i < 1000; ++i)
+    {
+        find(vec.begin(), vec.end(), lcg()) != vec.end();
+    }
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double, micro> time = end - start;
+    return time.count() / 1000;
+}
+
+double test_insert_delete_vec(int size)
+{
+    vector<int> vec;
+    for (int i = 0; i < size; ++i)
+    {
+        vec.push_back(lcg());
+    }
+    auto start = chrono::high_resolution_clock::now();
+    for (int i = 0; i < 1000; ++i)
+    {
+        vec.push_back(lcg());
+        vec.erase(find(vec.begin(), vec.end(), lcg()));
+    }
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double, micro> time = end - start;
+    return time.count() / 1000;
+}
+
 int main()
 {
     Tree tree1;
@@ -310,9 +427,37 @@ int main()
 
     vector<int> inter = intersection_values(tree1, tree2);
     cout << "Intersection: ";
-    for (int v : inter)
-        cout << v << " ";
+    for (int i : inter)
+        cout << i << " ";
     cout << endl;
 
-    return 0;
+    vector<int> uni = union_values(tree1, tree2);
+    cout << "Union: ";
+    for (int i : uni)
+        cout << i << " ";
+    cout << endl;
+
+    cout << "Average time to fill tree with 100 elements: " << test_fill(100) << " microseconds" << endl;
+    cout << "Average time to find 100 elements: " << test_find(100) << " microseconds" << endl;
+    cout << "Average time to insert and delete 100 elements: " << test_insert_delete(100) << " microseconds" << endl;
+    cout << "____________________________________________________________________________________________" << endl;
+    cout << "Average time to fill tree with 1000 elements: " << test_fill(1000) << " microseconds" << endl;
+    cout << "Average time to find 1000 elements: " << test_find(1000) << " microseconds" << endl;
+    cout << "Average time to insert and delete 1000 elements: " << test_insert_delete(1000) << " microseconds" << endl;
+    cout << "____________________________________________________________________________________________" << endl;
+    cout << "Average time to fill tree with 10000 elements: " << test_fill(10000) << " microseconds" << endl;
+    cout << "Average time to find 10000 elements: " << test_find(10000) << " microseconds" << endl;
+    cout << "Average time to insert and delete 10000 elements: " << test_insert_delete(10000) << " microseconds" << endl;
+    cout << "____________________________________________________________________________________________" << endl;
+    cout << "Average time to fill vector with 100 elements: " << test_fill_vec(100) << " microseconds" << endl;
+    cout << "Average time to find 100 elements: " << test_find_vec(100) << " microseconds" << endl;
+    cout << "Average time to insert and delete 100 elements: " << test_insert_delete_vec(100) << " microseconds" << endl;
+    cout << "____________________________________________________________________________________________" << endl;
+    cout << "Average time to fill vector with 1000 elements: " << test_fill_vec(1000) << " microseconds" << endl;
+    cout << "Average time to find 1000 elements: " << test_find_vec(1000) << " microseconds" << endl;
+    cout << "Average time to insert and delete 1000 elements: " << test_insert_delete_vec(1000) << " microseconds" << endl;
+    cout << "____________________________________________________________________________________________" << endl;
+    cout << "Average time to fill vector with 10000 elements: " << test_fill_vec(10000) << " microseconds" << endl;
+    cout << "Average time to find 10000 elements: " << test_find_vec(10000) << " microseconds" << endl;
+    cout << "Average time to insert and delete 10000 elements: " << test_insert_delete_vec(10000) << " microseconds" << endl;
 }
