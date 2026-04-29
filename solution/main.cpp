@@ -180,6 +180,38 @@ public:
     }
 };
 
+template <typename T>
+void random_input(int num, hash_table<T> &hash){
+    mt19937 gen(rand()); 
+    uniform_int_distribution<int> dist(0, 10000);
+    for(int i=0; i<num;++i){
+        int key = dist(gen);
+        hash.insert(key, i);
+    }
+} 
+template <typename T>
+int count_collisions(int size, hash_table<T> &hash){
+    int collisions = 0;
+    for(int i=0; i<size; ++i){
+        if(hash.count(i) > 1){
+            collisions += hash.count(i) - 1;
+        }
+    }
+    return collisions;
+}
+
+template <typename T>
+double avg_collisions(int size){
+    int collisions = 0;
+    for(int i=0; i<100;++i){
+        hash_table<int> hash = hash_table<int>(size);
+        random_input<int>(24, hash);
+        collisions += count_collisions(size, hash);
+    }
+    return double(collisions) / 100;
+}
 int main(){
-    
+    for(int i=25; i < 476; i+=50){
+        cout << "Hash size: " << i << "     collisions: " << avg_collisions<double>(i) << endl;
+    }
 }
